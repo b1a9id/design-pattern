@@ -5,10 +5,12 @@ import java.util.Objects;
 public class PrinterProxy implements Printable {
 
 	private String name;
-	private Printer real;
+	private String className;
+	private Printable real;
 
-	public PrinterProxy(String name) {
+	public PrinterProxy(String name, String className) {
 		this.name = name;
+		this.className = className;
 	}
 
 	public synchronized void setPrinterName(String name) {
@@ -24,12 +26,19 @@ public class PrinterProxy implements Printable {
 
 	public void print(String string) {
 		realize();
+		real.setPrinterName(this.name);
 		real.print(string);
 	}
 
 	private synchronized void realize() {
 		if (Objects.isNull(real)) {
-			real = new Printer(name);
+			try {
+				real = (Printable) Class.forName(this.className).newInstance();
+			} catch (ClassNotFoundException e) {
+				System.err.println("クラス " + className + " が見つかりません。");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 }
