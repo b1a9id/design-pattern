@@ -1,0 +1,35 @@
+package proxy;
+
+import java.util.Objects;
+
+public class PrinterProxy implements Printable {
+
+	private String name;
+	private Printer real;
+
+	public PrinterProxy(String name) {
+		this.name = name;
+	}
+
+	public synchronized void setPrinterName(String name) {
+		if (Objects.nonNull(real)) {
+			real.setPrinterName(name);
+		}
+		this.name = name;
+	}
+
+	public String getPrinterName() {
+		return this.name;
+	}
+
+	public void print(String string) {
+		realize();
+		real.print(string);
+	}
+
+	private synchronized void realize() {
+		if (Objects.isNull(real)) {
+			real = new Printer(name);
+		}
+	}
+}
